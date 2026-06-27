@@ -82,76 +82,90 @@ const dateFormatter = new Intl.DateTimeFormat("pt-BR", {
   year: "numeric",
 });
 
-elements.date.value = new Date().toISOString().slice(0, 10);
-
-elements.form.addEventListener("submit", (event) => {
-  event.preventDefault();
-
-  const formData = new FormData(elements.form);
-  const transaction = {
-    id: crypto.randomUUID(),
-    description: formData.get("description").trim(),
-    amount: Number(formData.get("amount")),
-    type: formData.get("type"),
-    category: formData.get("category"),
-    date: formData.get("date"),
-  };
-
-  state.transactions.unshift(transaction);
-  persist();
-  elements.form.reset();
+if (elements.date) {
   elements.date.value = new Date().toISOString().slice(0, 10);
-  render();
-});
+}
 
-elements.transactionList.addEventListener("click", (event) => {
-  const button = event.target.closest("[data-delete]");
+if (elements.form) {
+  elements.form.addEventListener("submit", (event) => {
+    event.preventDefault();
 
-  if (!button) {
-    return;
-  }
+    const formData = new FormData(elements.form);
+    const transaction = {
+      id: crypto.randomUUID(),
+      description: formData.get("description").trim(),
+      amount: Number(formData.get("amount")),
+      type: formData.get("type"),
+      category: formData.get("category"),
+      date: formData.get("date"),
+    };
 
-  state.transactions = state.transactions.filter(
-    (transaction) => transaction.id !== button.dataset.delete
-  );
-  persist();
-  render();
-});
+    state.transactions.unshift(transaction);
+    persist();
+    elements.form.reset();
 
-elements.clearButton.addEventListener("click", () => {
-  if (!state.transactions.length) {
-    return;
-  }
+    if (elements.date) {
+      elements.date.value = new Date().toISOString().slice(0, 10);
+    }
 
-  const confirmed = confirm("Deseja apagar todas as transacoes salvas?");
+    render();
+  });
+}
 
-  if (confirmed) {
-    state.transactions = [];
+if (elements.transactionList) {
+  elements.transactionList.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-delete]");
+
+    if (!button) {
+      return;
+    }
+
+    state.transactions = state.transactions.filter(
+      (transaction) => transaction.id !== button.dataset.delete
+    );
     persist();
     render();
-  }
-});
+  });
+}
 
-elements.exportButton.addEventListener("click", () => {
-  const rows = [
-    ["Descricao", "Categoria", "Tipo", "Valor", "Data"],
-    ...state.transactions.map((transaction) => [
-      transaction.description,
-      transaction.category,
-      transaction.type === "income" ? "Receita" : "Despesa",
-      transaction.amount.toFixed(2).replace(".", ","),
-      transaction.date,
-    ]),
-  ];
+if (elements.clearButton) {
+  elements.clearButton.addEventListener("click", () => {
+    if (!state.transactions.length) {
+      return;
+    }
 
-  const csv = rows.map((row) => row.map(escapeCsv).join(";")).join("\n");
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.download = "finora-transacoes.csv";
-  link.click();
-  URL.revokeObjectURL(link.href);
-});
+    const confirmed = confirm("Deseja apagar todas as transacoes salvas?");
+
+    if (confirmed) {
+      state.transactions = [];
+      persist();
+      render();
+    }
+  });
+}
+
+if (elements.exportButton) {
+  elements.exportButton.addEventListener("click", () => {
+    const rows = [
+      ["Descricao", "Categoria", "Tipo", "Valor", "Data"],
+      ...state.transactions.map((transaction) => [
+        transaction.description,
+        transaction.category,
+        transaction.type === "income" ? "Receita" : "Despesa",
+        transaction.amount.toFixed(2).replace(".", ","),
+        transaction.date,
+      ]),
+    ];
+
+    const csv = rows.map((row) => row.map(escapeCsv).join(";")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "finora-transacoes.csv";
+    link.click();
+    URL.revokeObjectURL(link.href);
+  });
+}
 
 function loadTransactions() {
   const stored = localStorage.getItem(STORAGE_KEY);
@@ -188,40 +202,42 @@ function render() {
    const budgetPercentage = Math.min((totals.expense / MONTHLY_BUDGET) * 100, 100);
    const goalPercentage = Math.min((Math.max(balance, 0) / MOTORCYCLE_GOAL) * 100, 100);
 
-   // Animate counter updates
-   animateValue(elements.balanceValue, parseFloat(elements.balanceValue.textContent.replace(/[^\d,-]/g, '') || 0), balance);
-   animateValue(elements.incomeValue, parseFloat(elements.incomeValue.textContent.replace(/[^\d,-]/g, '') || 0), totals.income);
-   animateValue(elements.expenseValue, parseFloat(elements.expenseValue.textContent.replace(/[^\d,-]/g, '') || 0), totals.expense);
-   animateValue(elements.savingRate, parseFloat(elements.savingRate.textContent) || 0, savingPercentage);
-   animateValue(elements.goalPercent, parseFloat(elements.goalPercent.textContent) || 0, goalPercentage);
-   animateValue(elements.goalSaved, parseFloat(elements.goalSaved.textContent.replace(/[^\d,-]/g, '') || 0), Math.max(balance, 0));
+   animateValue(elements.balanceValue, getNumericText(elements.balanceValue), balance);
+   animateValue(elements.incomeValue, getNumericText(elements.incomeValue), totals.income);
+   animateValue(elements.expenseValue, getNumericText(elements.expenseValue), totals.expense);
+   animateValue(elements.savingRate, getNumericText(elements.savingRate), savingPercentage);
+   animateValue(elements.goalPercent, getNumericText(elements.goalPercent), goalPercentage);
+   animateValue(elements.goalSaved, getNumericText(elements.goalSaved), Math.max(balance, 0));
 
-   elements.goalTargetLabel.textContent = `${currency.format(Math.max(balance, 0))} de ${currency.format(MOTORCYCLE_GOAL)}`;
-   elements.goalBar.style.width = `${goalPercentage}%`;
+   setText(elements.goalTargetLabel, `${currency.format(Math.max(balance, 0))} de ${currency.format(MOTORCYCLE_GOAL)}`);
+   setWidth(elements.goalBar, goalPercentage);
 
-   elements.balanceHint.textContent = balance >= 0 ? "Carteira positiva" : "Ajuste necessario";
-   elements.trendPill.textContent = balance >= totals.income * 0.2 ? "Saudavel" : balance >= 0 ? "Atencao" : "Critico";
+   setText(elements.balanceHint, balance >= 0 ? "Carteira positiva" : "Ajuste necessario");
+   setText(elements.trendPill, balance >= totals.income * 0.2 ? "Saudavel" : balance >= 0 ? "Atencao" : "Critico");
 
-   elements.budgetPercent.textContent = `${Math.round(budgetPercentage)}%`;
-   elements.budgetBar.style.width = `${budgetPercentage}%`;
-   elements.budgetText.textContent = `${currency.format(totals.expense)} usados de ${currency.format(MONTHLY_BUDGET)} planejados.`;
+   setText(elements.budgetPercent, `${Math.round(budgetPercentage)}%`);
+   setWidth(elements.budgetBar, budgetPercentage);
+   setText(elements.budgetText, `${currency.format(totals.expense)} usados de ${currency.format(MONTHLY_BUDGET)} planejados.`);
 
-   // Add animation classes to trigger counter animations
-   elements.balanceValue.classList.add('animate');
-   elements.incomeValue.classList.add('animate');
-   elements.expenseValue.classList.add('animate');
-   elements.savingRate.classList.add('animate');
-   elements.goalPercent.classList.add('animate');
-   elements.goalSaved.classList.add('animate');
+   [
+      elements.balanceValue,
+      elements.incomeValue,
+      elements.expenseValue,
+      elements.savingRate,
+      elements.goalPercent,
+      elements.goalSaved,
+   ].filter(Boolean).forEach((element) => element.classList.add('animate'));
    
    // Remove animation classes after animation ends
    setTimeout(() => {
-      elements.balanceValue.classList.remove('animate');
-      elements.incomeValue.classList.remove('animate');
-      elements.expenseValue.classList.remove('animate');
-      elements.savingRate.classList.remove('animate');
-      elements.goalPercent.classList.remove('animate');
-      elements.goalSaved.classList.remove('animate');
+      [
+         elements.balanceValue,
+         elements.incomeValue,
+         elements.expenseValue,
+         elements.savingRate,
+         elements.goalPercent,
+         elements.goalSaved,
+      ].filter(Boolean).forEach((element) => element.classList.remove('animate'));
    }, 800);
 
    renderTransactions();
@@ -230,6 +246,10 @@ function render() {
 
 // Helper function to animate number counting
 function animateValue(element, start, end) {
+   if (!element) {
+      return;
+   }
+
    const startVal = parseFloat(start);
    const endVal = parseFloat(end);
    const duration = 800; // ms
@@ -263,6 +283,10 @@ function animateValue(element, start, end) {
 }
 
 function renderTransactions() {
+  if (!elements.transactionList) {
+    return;
+  }
+
   if (!state.transactions.length) {
     elements.transactionList.innerHTML = '<div class="empty-state">Nenhuma transacao ainda. Adicione uma para iniciar seu controle.</div>';
     return;
@@ -291,6 +315,10 @@ function renderTransactions() {
 
 function renderChart() {
   const canvas = elements.chart;
+  if (!canvas) {
+    return;
+  }
+
   const context = canvas.getContext("2d");
   const rect = canvas.getBoundingClientRect();
   const ratio = window.devicePixelRatio || 1;
@@ -389,37 +417,25 @@ function escapeCsv(value) {
    return `"${String(value).replaceAll('"', '""')}"`;
 }
 
-function animateValue(element, start, end) {
-   const startVal = parseFloat(start);
-   const endVal = parseFloat(end);
-   const duration = 800; // ms
-   const startTime = performance.now();
-
-   function updateTimestamp(currentTime) {
-      const elapsed = currentTime - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      
-      // Easing function (easeOutCubic)
-      const easedProgress = 1 - Math.pow(1 - progress, 3);
-      
-      let currentValue;
-      if (element === elements.savingRate || element === elements.goalPercent) {
-         // For percentages
-         currentValue = Math.round(startVal + (endVal - startVal) * easedProgress);
-         element.textContent = `${currentValue}%`;
-      } else if (element === elements.balanceValue || element === elements.incomeValue || 
-                element === elements.expenseValue || element === elements.goalSaved) {
-         // For currency values
-         currentValue = startVal + (endVal - startVal) * easedProgress;
-         element.textContent = currency.format(currentValue);
-      }
-      
-      if (progress < 1) {
-         requestAnimationFrame(updateTimestamp);
-      }
+function getNumericText(element) {
+   if (!element) {
+      return 0;
    }
-   
-   requestAnimationFrame(updateTimestamp);
+
+   const normalized = element.textContent.replace(/[^\d,-]/g, "").replace(",", ".");
+   return parseFloat(normalized) || 0;
+}
+
+function setText(element, text) {
+   if (element) {
+      element.textContent = text;
+   }
+}
+
+function setWidth(element, percentage) {
+   if (element) {
+      element.style.width = `${percentage}%`;
+   }
 }
 
 window.addEventListener("resize", renderChart);
