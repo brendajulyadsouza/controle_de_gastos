@@ -450,6 +450,112 @@ body {
    transform: scale(1.05);
 }
 
+.form-panel {
+   align-self: start;
+}
+
+.transaction-form,
+.budget-form,
+.goal-form {
+   display: grid;
+   gap: 1rem;
+   padding: 1.5rem;
+}
+
+.transaction-form label,
+.budget-form label,
+.goal-form label {
+   display: grid;
+   gap: 0.45rem;
+   color: #cbd5e1;
+   font-size: 0.875rem;
+   font-weight: 700;
+   line-height: 1.25;
+}
+
+.field-row {
+   display: grid;
+   grid-template-columns: repeat(2, minmax(0, 1fr));
+   gap: 1rem;
+}
+
+.content-grid > .form-panel:last-child .field-row {
+   grid-template-columns: 1fr;
+}
+
+.transaction-form input,
+.transaction-form select,
+.transaction-form textarea,
+.budget-form input,
+.budget-form select,
+.budget-form textarea,
+.goal-form input,
+.goal-form select,
+.goal-form textarea {
+   width: 100%;
+   min-height: 44px;
+   border: 1px solid var(--color-border-muted);
+   border-radius: var(--radius-md);
+   background-color: #0b1220;
+   color: #e2e8f0;
+   font: inherit;
+   font-size: 0.9rem;
+   font-weight: 600;
+   line-height: 1.3;
+   padding: 0.72rem 0.85rem;
+   outline: none;
+   transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.transaction-form textarea,
+.budget-form textarea,
+.goal-form textarea {
+   min-height: 92px;
+   resize: vertical;
+}
+
+.transaction-form select,
+.budget-form select,
+.goal-form select {
+   cursor: pointer;
+}
+
+.transaction-form input::placeholder,
+.transaction-form textarea::placeholder,
+.budget-form input::placeholder,
+.budget-form textarea::placeholder,
+.goal-form input::placeholder,
+.goal-form textarea::placeholder {
+   color: #64748b;
+   font-weight: 500;
+}
+
+.transaction-form input:focus,
+.transaction-form select:focus,
+.transaction-form textarea:focus,
+.budget-form input:focus,
+.budget-form select:focus,
+.budget-form textarea:focus,
+.goal-form input:focus,
+.goal-form select:focus,
+.goal-form textarea:focus {
+   border-color: var(--color-primary);
+   background-color: #111827;
+   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.22);
+}
+
+.primary-button.full,
+.secondary-button.full {
+   width: 100%;
+}
+
+.transaction-form .primary-button,
+.budget-form .primary-button,
+.goal-form .primary-button {
+   min-height: 46px;
+   margin-top: 0.25rem;
+}
+
 .transaction-list {
    min-height: 200px;
 }
@@ -705,6 +811,10 @@ body {
    
    .content-grid,
    .lower-grid {
+      grid-template-columns: 1fr;
+   }
+
+   .field-row {
       grid-template-columns: 1fr;
    }
    
