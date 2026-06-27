@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <meta
+      name="description"
+      content="Metas financeiras para planejar seus objetivos de longo prazo"
+    />
+
+    <title>Finora | Metas</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+
+  <body>
+    <div class="page-shell">
+      <aside class="sidebar" aria-label="Navegacao principal">
+        <a class="brand" href="#" aria-label="Finora inicio">
+          <span class="brand-mark">F</span>
+          <span>
+            <strong>Finora</strong>
+            <small>Private Ledger</small>
+          </span>
+        </a>
+
+        <nav class="nav-list">
+          <a class="nav-link" href="index.html"><span>Dashboard</span></a>
+          <a class="nav-link" href="transacoes.html"><span>Transacoes</span></a>
+          <a class="nav-link" href="orcamento.html"><span>Orcamento</span></a>
+          <a class="nav-link active" href="metas.html"><span>Metas</span></a>
+        </nav>
+      </aside>
+
+      <main class="dashboard" id="dashboard">
+        <header class="hero">
+          <div>
+            <span class="eyebrow">Metas financeiras</span>
+            <h1>Planeje e alcance seus objetivos</h1>
+            <p>
+              Defina metas de economia, acompanhe o progresso e mantenha-se
+              motivado para realizar seus sonhos financeiros.
+            </p>
+          </div>
+
+          <div class="hero-actions">
+            <a class="primary-button" href="#nova-meta">Nova meta</a>
+          </div>
+        </header>
+
+        <section class="content-grid">
+          <article class="panel" id="metas-list">
+            <div class="panel-heading">
+              <div>
+                <span class="eyebrow">Minhas metas</span>
+                <h2>Objetivos de economia</h2>
+              </div>
+            </div>
+            <div class="goals-list" id="goalsList">
+              <div class="empty-state">
+                Nenhuma meta definida. Comece criando sua primeira meta
+                financeira.
+              </div>
+            </div>
+          </article>
+
+          <article class="panel form-panel" id="nova-meta">
+            <div class="panel-heading">
+              <div>
+                <span class="eyebrow">Nova meta</span>
+                <h2>Defina seu objetivo</h2>
+              </div>
+            </div>
+
+            <form id="goalForm" class="goal-form">
+              <label>
+                Nome da meta
+                <input
+                  id="goalName"
+                  name="name"
+                  type="text"
+                  placeholder="Ex: Moto Honda CG 160"
+                  required
+                />
+              </label>
+
+              <div class="field-row">
+                <label>
+                  Valor objetivo
+                  <input
+                    id="goalTarget"
+                    name="target"
+                    type="number"
+                    min="0.01"
+                    step="0.01"
+                    placeholder="0,00"
+                    required
+                  />
+                </label>
+
+                <label>
+                  Data objetivo
+                  <input id="goalDate" name="date" type="date" required />
+                </label>
+              </div>
+
+              <label>
+                Descrição (opcional)
+                <textarea
+                  id="goalDescription"
+                  name="description"
+                  rows="3"
+                  placeholder="Detalhes sobre sua meta..."
+                ></textarea>
+              </label>
+
+              <button class="primary-button full" type="submit">
+                Salvar meta
+              </button>
+            </form>
+          </article>
+        </section>
+      </main>
+    </div>
+
+    <script>
+      // Simple goals management for metas.html
+      const GOALS_STORAGE_KEY = "finora-goals";
+      
+      const state = {
+        goals: loadGoals(),
+      };
+
+      const elements = {
+        form: document.querySelector("#goalForm"),
+        goalName: document.querySelector("#goalName"),
+        goalTarget: document.querySelector("#goalTarget"),
+        goalDate: document.querySelector("#goalDate"),
+        goalDescription: document.querySelector("#goalDescription"),
+        goalsList: document.querySelector("#goalsList"),
+      };
+
+      elements.form.addEventListener("submit", (event) => {
+        event.preventDefault();
+
+        const formData = new FormData(elements.form);
+        const goal = {
+          id: crypto.randomUUID(),
+          name: formData.get("name").trim(),
+          target: parseFloat(formData.get("target")),
+          date: formData.get("date"),
+          description: formData.get("description").trim(),
+          createdAt: new Date().toISOString(),
+        };
+
+        state.goals.unshift(goal);
+        saveGoals();
+        elements.form.reset();
+        elements.goalDate.value = new Date().toISOString().slice(0, 10);
+        renderGoals();
+      });
+
+      function loadGoals() {
+        const stored = localStorage.getItem(GOALS_STORAGE_KEY);
+        if (!stored) return [];
+        try {
+          return JSON.parse(stored);
+        } catch {
+          return [];
+        }
+      }
+
+      function saveGoals() {
+        localStorage.setItem(GOALS_STORAGE_KEY, JSON.stringify(state.goals));
+      }
+
+      function renderGoals() {
+        if (!state.goals.length) {
+          elements.goalsList.innerHTML =
+            '<div class="empty-state">Nenhuma meta definida. Comece criando sua primeira meta financeira.</div>';
+          return;
+        }
+
+        elements.goalsList.innerHTML = state.goals
+          .map(
+            (goal) => `
+          <article class="goal-card">
+            <div>
+              <h3>${goal.name}</h3>
+              <p>${goal.description || "Sem descrição adicional"}</p>
+              <div class="goal-meta">
+                <span>Objetivo: ${new Intl.NumberFormat("pt-BR", {
+                  style: "currency",
+                  currency: "BRL",
+                }).format(goal.target)}</span>
+                <span>Data: ${new Date(goal.date).toLocaleDateString(
+                  "pt-BR"
+                )}</span>
+              </div>
+            </div>
+            <div class="goal-actions">
+              <button class="ghost-button" data-edit="${
+                goal.id
+              }">Editar</button>
+              <button class="ghost-button" data-delete="${
+                goal.id
+              }">Excluir</button>
+            </div>
+          </article>
+        `
+          )
+          .join("");
+
+        // Add event listeners for edit/delete buttons
+        document.querySelectorAll("[data-delete]").forEach((button) => {
+          button.addEventListener("click", (event) => {
+            const id = event.target.dataset.delete;
+            if (confirm("Deseja excluir esta meta?")) {
+              state.goals = state.goals.filter((goal) => goal.id !== id);
+              saveGoals();
+              renderGoals();
+            }
+          });
+        });
+
+        document.querySelectorAll("[data-edit]").forEach((button) => {
+          button.addEventListener("click", (event) => {
+            const id = event.target.dataset.edit;
+            const goal = state.goals.find((g) => g.id === id);
+            if (goal) {
+              elements.goalName.value = goal.name;
+              elements.goalTarget.value = goal.target;
+              elements.goalDate.value = goal.date;
+              elements.goalDescription.value = goal.description;
+              
+              // Remove the goal from list to avoid duplicates when saving edited version
+              state.goals = state.goals.filter((g) => g.id !== id);
+              saveGoals();
+              renderGoals();
+              
+              // Focus on the form
+              elements.goalName.focus();
+            }
+          });
+        });
+      }
+
+      // Initialize
+      const now = new Date();
+      elements.goalDate.value = now.toISOString().slice(0, 10);
+      renderGoals();
+    </script>
+  </body>
+</html>

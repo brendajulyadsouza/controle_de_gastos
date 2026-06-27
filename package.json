@@ -1,0 +1,16 @@
+{
+  "name": "financeiro",
+  "version": "1.0.0",
+  "description": "Controle financeiro pessoal com meta para compra de moto",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "keywords": ["finance", "controle", "financeiro", "orcamento"],
+  "author": "Finora",
+  "license": "MIT"
+}

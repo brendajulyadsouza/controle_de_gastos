@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Dashboard profissional de controle financeiro pessoal com receitas, despesas, metas e insights."
+    />
+    <title>Finora | Transacoes</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <aside class="sidebar" aria-label="Navegacao principal">
+        <a class="brand" href="index.html" aria-label="Finora inicio">
+          <span class="brand-mark">F</span>
+          <span>
+            <strong>Finora</strong>
+            <small>Private Ledger</small>
+          </span>
+        </a>
+
+        <nav class="nav-list">
+          <a class="nav-link" href="index.html"><span>Dashboard</span></a>
+          <a class="nav-link active" href="transacoes.html"><span>Transacoes</span></a>
+          <a class="nav-link" href="orcamento.html"><span>Orcamento</span></a>
+          <a class="nav-link" href="metas.html"><span>Metas</span></a>
+        </nav>
+      </aside>
+
+      <main class="dashboard" id="dashboard">
+        <header class="hero">
+          <div>
+            <span class="eyebrow">Transacoes</span>
+            <h1>Gerencie suas receitas e despesas</h1>
+            <p>
+              Adicione, visualize e exclua suas transacoes financeiras para
+              manter um controle preciso do seu fluxo de caixa.
+            </p>
+          </div>
+
+          <div class="hero-actions">
+            <a class="primary-button full" href="#nova-transacao">Nova transacao</a>
+          </div>
+        </header>
+
+        <section class="content-grid">
+          <article class="panel form-panel" id="nova-transacao">
+            <div class="panel-heading">
+              <div>
+                <span class="eyebrow">Lancamento</span>
+                <h2>Nova transacao</h2>
+              </div>
+            </div>
+
+            <form id="transactionForm" class="transaction-form">
+              <label>
+                Descricao
+                <input
+                  id="description"
+                  name="description"
+                  type="text"
+                  placeholder="Ex: Salario, mercado, aluguel"
+                  required
+                />
+              </label>
+
+              <div class="field-row">
+                <label>
+                  Valor
+                  <input id="amount" name="amount" type="number" min="0.01" step="0.01" placeholder="0,00" required />
+                </label>
+
+                <label>
+                  Tipo
+                  <select id="type" name="type" required>
+                    <option value="income">Receita</option>
+                    <option value="expense">Despesa</option>
+                  </select>
+                </label>
+              </div>
+
+              <div class="field-row">
+                <label>
+                  Categoria
+                  <select id="category" name="category" required>
+                    <option>Salario</option>
+                    <option>Investimentos</option>
+                    <option>Moradia</option>
+                    <option>Alimentacao</option>
+                    <option>Transporte</option>
+                    <option>Lazer</option>
+                    <option>Saude</option>
+                    <option>Outros</option>
+                  </select>
+                </label>
+
+                <label>
+                  Data
+                  <input id="date" name="date" type="date" required />
+                </label>
+              </div>
+
+              <button class="primary-button full" type="submit">Adicionar transacao</button>
+            </form>
+          </article>
+
+          <article class="panel" id="transacoes">
+            <div class="panel-heading">
+              <div>
+                <span class="eyebrow">Historico</span>
+                <h2>Ultimas movimentacoes</h2>
+              </div>
+              <button class="text-button" id="clearButton" type="button">Limpar dados</button>
+            </div>
+            <div class="transaction-list" id="transactionList" aria-live="polite"></div>
+          </article>
+        </section>
+      </main>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>

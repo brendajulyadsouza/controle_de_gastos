@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Dashboard profissional de controle financeiro pessoal com receitas, despesas, metas e insights."
+    />
+    <title>Finora | Controle financeiro</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <aside class="sidebar" aria-label="Navegacao principal">
+        <a class="brand" href="#" aria-label="Finora inicio">
+          <span class="brand-mark">F</span>
+          <span>
+            <strong>Finora</strong>
+            <small>Private Ledger</small>
+          </span>
+        </a>
+
+        <nav class="nav-list">
+          <a class="nav-link active" href="index.html"><span>Dashboard</span></a>
+          <a class="nav-link" href="transacoes.html"><span>Transacoes</span></a>
+          <a class="nav-link" href="orcamento.html"><span>Orcamento</span></a>
+          <a class="nav-link" href="metas.html"><span>Metas</span></a>
+        </nav>
+      </aside>
+
+      <main class="dashboard" id="dashboard">
+        <header class="hero">
+          <div>
+            <span class="eyebrow">Controle financeiro premium</span>
+            <h1>Clareza para decidir melhor sobre cada real.</h1>
+            <p>
+              Organize entradas, despesas, orcamentos e metas em um painel
+              elegante, rapido e salvo localmente no seu navegador.
+            </p>
+          </div>
+
+          <div class="hero-actions">
+            <button class="secondary-button" id="exportButton" type="button">
+              Exportar CSV
+            </button>
+            <a class="primary-button" href="transacoes.html">Nova transacao</a>
+          </div>
+        </header>
+
+<section class="summary-grid" aria-label="Resumo financeiro">
+           <article class="metric-card featured">
+             <span>Saldo atual</span>
+             <strong id="balanceValue">R$ 0,00</strong>
+             <small id="balanceHint">Atualizado agora</small>
+           </article>
+           <article class="metric-card">
+             <span>Receitas</span>
+             <strong id="incomeValue">R$ 0,00</strong>
+             <small>Entradas registradas</small>
+           </article>
+           <article class="metric-card">
+             <span>Despesas</span>
+             <strong id="expenseValue">R$ 0,00</strong>
+             <small>Saidas registradas</small>
+           </article>
+           <article class="metric-card">
+             <span>Economia</span>
+             <strong id="savingRate">0%</strong>
+             <small>Taxa sobre receitas</small>
+           </article>
+           <article class="metric-card goal">
+             <span>Meta Moto</span>
+             <strong id="goalSaved">R$ 0,00</strong>
+             <div>
+               <span id="goalPercent">0%</span>
+               <div style="height: 4px; background: var(--color-border); border-radius: 2px; margin-top: 0.5rem; overflow: hidden; position: relative;">
+                 <div id="goalBar" style="height: 100%; width: 0%; background: linear-gradient(90deg, var(--color-primary), var(--color-accent)); border-radius: 2px; transition: width 0.3s ease;"></div>
+               </div>
+             </div>
+             <small id="goalTargetLabel">R$ 0,00 de R$ 15.000,00</small>
+           </article>
+         </section>
+
+        <section class="content-grid">
+          <article class="panel chart-panel">
+            <div class="panel-heading">
+              <div>
+                <span class="eyebrow">Fluxo mensal</span>
+                <h2>Receitas x despesas</h2>
+              </div>
+              <span class="status-pill" id="trendPill">Equilibrado</span>
+            </div>
+            <canvas id="financeChart" height="260" aria-label="Grafico financeiro"></canvas>
+          </article>
+
+          <article class="panel" id="recent-transactions">
+            <div class="panel-heading">
+              <div>
+                <span class="eyebrow">Transacoes recentes</span>
+                <h2>Ultimas movimentacoes</h2>
+              </div>
+              <a href="transacoes.html" class="text-button">Ver todas</a>
+            </div>
+            <div class="transaction-list" id="transactionList" aria-live="polite"></div>
+          </article>
+        </section>
+      </main>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>

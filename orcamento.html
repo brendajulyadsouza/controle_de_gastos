@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <meta
+      name="description"
+      content="Orçamento mensal para controle de gastos e receitas previstos"
+    />
+
+    <title>Finora | Orçamento</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+
+  <body>
+    <div class="page-shell">
+      <aside class="sidebar" aria-label="Navegacao principal">
+        <a class="brand" href="#" aria-label="Finora inicio">
+          <span class="brand-mark">F</span>
+          <span>
+            <strong>Finora</strong>
+            <small>Private Ledger</small>
+          </span>
+        </a>
+
+        <nav class="nav-list">
+          <a class="nav-link" href="index.html"><span>Dashboard</span></a>
+          <a class="nav-link" href="transacoes.html"><span>Transacoes</span></a>
+          <a class="nav-link active" href="orcamento.html"><span>Orcamento</span></a>
+          <a class="nav-link" href="metas.html"><span>Metas</span></a>
+        </nav>
+      </aside>
+
+      <main class="dashboard" id="dashboard">
+        <header class="hero">
+          <div>
+            <span class="eyebrow">Orçamento mensal</span>
+            <h1>Planeje seus gastos e receitas previstos</h1>
+            <p>
+              Defina limites para suas categorias de gastos e acompanhe o
+              cumprimento do seu plano financeiro mensal.
+            </p>
+          </div>
+
+          <div class="hero-actions">
+            <a class="primary-button" href="#novo-orcamento">Novo orçamento</a>
+          </div>
+        </header>
+
+        <section class="content-grid">
+          <article class="panel" id="orcamentos-list">
+            <div class="panel-heading">
+              <div>
+                <span class="eyebrow">Seu orçamento</span>
+                <h2>Limites mensais por categoria</h2>
+              </div>
+            </div>
+            <div class="budget-list" id="budgetList">
+              <div class="empty-state">
+                Nenhum orçamento definido. Os limites mensais ajudam a controlar
+                gastos por categoria.
+              </div>
+            </div>
+          </article>
+
+          <article class="panel form-panel" id="novo-orcamento">
+            <div class="panel-heading">
+              <div>
+                <span class="eyebrow">Novo limite</span>
+                <h2>Defina um orçamento</h2>
+              </div>
+            </div>
+
+            <form id="budgetForm" class="budget-form">
+              <label>
+                Categoria
+                <select id="budgetCategory" name="category" required>
+                  <option value="">Selecione uma categoria</option>
+                  <option value="Moradia">Moradia</option>
+                  <option value="Alimentacao">Alimentação</option>
+                  <option value="Transporte">Transporte</option>
+                  <option value="Saude">Saúde</option>
+                  <option value="Lazer">Lazer</option>
+                  <option value="Educação">Educação</option>
+                  <option value="Outros">Outros</option>
+                </select>
+              </label>
+
+              <div class="field-row">
+                <label>
+                  Valor mensal
+                  <input
+                    id="budgetAmount"
+                    name="amount"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    placeholder="0,00"
+                    required
+                  />
+                </label>
+
+                <label>
+                  Mês de referência
+                  <input id="budgetMonth" name="month" type="month" required />
+                </label>
+              </div>
+
+              <button class="primary-button full" type="submit">
+                Salvar orçamento
+              </button>
+            </form>
+          </article>
+        </section>
+      </main>
+    </div>
+
+    <script>
+      // Simple budget management for orcamento.html
+      const BUDGET_STORAGE_KEY = "finora-budgets";
+      
+      const state = {
+        budgets: loadBudgets(),
+      };
+
+      const elements = {
+        form: document.querySelector("#budgetForm"),
+        budgetCategory: document.querySelector("#budgetCategory"),
+        budgetAmount: document.querySelector("#budgetAmount"),
+        budgetMonth: document.querySelector("#budgetMonth"),
+        budgetList: document.querySelector("#budgetList"),
+      };
+
+      const currentDate = new Date();
+      const currentMonth = currentDate.toISOString().slice(0, 7); // YYYY-MM
+      elements.budgetMonth.value = currentMonth;
+
+      elements.form.addEventListener("submit", (event) => {
+        event.preventDefault();
+
+        const formData = new FormData(elements.form);
+        const budget = {
+          id: crypto.randomUUID(),
+          category: formData.get("category"),
+          amount: parseFloat(formData.get("amount")),
+          month: formData.get("month"),
+          createdAt: new Date().toISOString(),
+        };
+
+        // Remove existing budget for same category/month if updating
+        state.budgets = state.budgets.filter(
+          b => !(b.category === budget.category && b.month === budget.month)
+        );
+        
+        state.budgets.unshift(budget);
+        saveBudgets();
+        elements.form.reset();
+        elements.budgetMonth.value = currentMonth;
+        renderBudgets();
+      });
+
+      function loadBudgets() {
+        const stored = localStorage.getItem(BUDGET_STORAGE_KEY);
+        if (!stored) return [];
+        try {
+          return JSON.parse(stored);
+        } catch {
+          return [];
+        }
+      }
+
+      function saveBudgets() {
+        localStorage.setItem(BUDGET_STORAGE_KEY, JSON.stringify(state.budgets));
+      }
+
+      function renderBudgets() {
+        if (!state.budgets.length) {
+          elements.budgetList.innerHTML =
+            '<div class="empty-state">Nenhum orçamento definido. Os limites mensais ajudam a controlar gastos por categoria.</div>';
+          return;
+        }
+
+        // Group by month for better display
+        const budgetsByMonth = {};
+        state.budgets.forEach(budget => {
+          if (!budgetsByMonth[budget.month]) {
+            budgetsByMonth[budget.month] = [];
+          }
+          budgetsByMonth[budget.month].push(budget);
+        });
+
+        elements.budgetList.innerHTML = Object.keys(budgetsByMonth)
+          .sort((a, b) => b.localeCompare(a)) // Newest first
+          .map(month => {
+            const monthDate = new Date(month + "-01");
+            const monthName = monthDate.toLocaleString("pt-BR", { month: "long", year: "numeric" });
+            return `
+              <div class="budget-month-section">
+                <h3>${monthName}</h3>
+                <div class="budget-items">
+                  ${budgetsByMonth[month].map(budget => `
+                    <div class="budget-item">
+                      <div class="budget-item-info">
+                        <span class="budget-category">${budget.category}</span>
+                        <span class="budget-amount">${new Intl.NumberFormat("pt-BR", {
+                          style: "currency",
+                          currency: "BRL",
+                        }).format(budget.amount)}</span>
+                      </div>
+                      <div class="budget-item-actions">
+                        <button class="ghost-button" data-edit="${budget.id}">Editar</button>
+                        <button class="ghost-button" data-delete="${budget.id}">Excluir</button>
+                      </div>
+                    </div>
+                  `).join("")}
+                </div>
+              </div>
+            `;
+          })
+          .join("");
+
+        // Add event listeners for edit/delete buttons
+        document.querySelectorAll("[data-delete]").forEach((button) => {
+          button.addEventListener("click", (event) => {
+            const id = event.target.dataset.delete;
+            if (confirm("Deseja excluir este orçamento?")) {
+              state.budgets = state.budgets.filter((budget) => budget.id !== id);
+              saveBudgets();
+              renderBudgets();
+            }
+          });
+        });
+
+        document.querySelectorAll("[data-edit]").forEach((button) => {
+          button.addEventListener("click", (event) => {
+            const id = event.target.dataset.edit;
+            const budget = state.budgets.find((b) => b.id === id);
+            if (budget) {
+              elements.budgetCategory.value = budget.category;
+              elements.budgetAmount.value = budget.amount;
+              elements.budgetMonth.value = budget.month;
+              
+              // Remove the budget from list to avoid duplicates when saving edited version
+              state.budgets = state.budgets.filter((b) => b.id !== id);
+              saveBudgets();
+              renderBudgets();
+              
+              // Focus on the form
+              elements.budgetCategory.focus();
+            }
+          });
+        });
+      }
+
+      // Initialize
+      renderBudgets();
+    </script>
+  </body>
+</html>
